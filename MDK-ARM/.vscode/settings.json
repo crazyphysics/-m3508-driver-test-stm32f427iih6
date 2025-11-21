@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "dvc_motor.h": "c",
+        "typeinfo": "c",
+        "dma.h": "c",
+        "usart.h": "c",
+        "tsk_callback.h": "c",
+        "drv_serial.h": "c",
+        "string.h": "c"
+    }
+}
