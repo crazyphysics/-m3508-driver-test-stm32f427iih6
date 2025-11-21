@@ -29,7 +29,7 @@ MCU数据包: 纯文本, "data:%f,%f,%f,%f,%f,%f\n", 其中%f为具体数据
 
 
 #### 引脚图
-![引脚图](https://gitee.com/liuyihui1/m3508-driver-test-stm32f427iih6/blob/master/%E5%BC%95%E8%84%9A%E5%9B%BE.png)
+![引脚图](https://gitee.com/liuyihui1/m3508-driver-test-stm32f427iih6/raw/master/%E5%BC%95%E8%84%9A%E5%9B%BE.png)
 
 
 #### 参与贡献
