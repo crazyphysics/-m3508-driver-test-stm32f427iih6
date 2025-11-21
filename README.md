@@ -28,6 +28,10 @@ MCU数据包: 纯文本, "data:%f,%f,%f,%f,%f,%f\n", 其中%f为具体数据
 2.  已在F103上完成相关编写与测试, 移植工作正在推进
 
 
+#### 引脚图
+![引脚图](https://gitee.com/liuyihui1/m3508-driver-test-stm32f427iih6/blob/master/引脚图.png)
+
+
 #### 参与贡献
 
 1.  先与我本人联系 (RoboPioneer下位机小登)
