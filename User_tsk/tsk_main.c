@@ -1,3 +1,9 @@
+/**
+ * @file tsk_main.c
+ * @brief 模仿Arduino的main函数实现
+ * @author lyh
+ * @bug 串口收发待完善
+ */
 #include "drv_can.h"
 #include "tsk_callback.h"
 #include "drv_serial.h"

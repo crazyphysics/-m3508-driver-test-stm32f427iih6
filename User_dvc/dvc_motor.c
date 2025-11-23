@@ -1,6 +1,6 @@
 /**
  * @file dvc_motor.c
- * @author lyh (lyh666@outlook.com)
+ * @author lyh 
  * @brief 按照C620电调CAN收发数据手册写的驱动
  * @version 0.1
  * @date 2025-11-26 起稿
@@ -18,6 +18,9 @@
 #define CAN_EXT_FRAME       0x0004U           // 扩展帧(IDE=1)
 #define CAN_DATA_FRAME      0x0000U           // 数据帧(RTR=0)  
 #define CAN_REMOTE_FRAME    0x0002U           // 远程帧(RTR=1)
+
+static uint8_t motor_tx_0x200[8] = {0};
+static uint8_t motor_tx_0x1FF[8] = {0};
 
 static PID_HandleTypeDef pid1 = {
     .output_max = 20,
@@ -40,7 +43,6 @@ static PID_HandleTypeDef hpid[9];   // PID句柄数组，下标1~8有效, 输出
  * @brief 用于CAN总线发送的数据包
  * @note 0:motor1_H, 1:motor1_L, 2:motor2_H, 3:motor3_L, ...
  */
-static uint8_t motor_tx_packet[8] = {0};
 Motor_HandleTypeDef hmotor[9];
 
 
@@ -131,24 +133,47 @@ HAL_StatusTypeDef Motor_SetCurrentMap(Motor_HandleTypeDef *hmotor, int32_t curre
         tx_id = 0x200;
         motor_tx_packet[hmotor->id*2 - 1] = (uint8_t)current_map;       // 低八位
         motor_tx_packet[hmotor->id*2 - 2] = (uint8_t)(current_map >> 8);// 高八位 
+        return CAN_SendMsg(hmotor->hcan, tx_id, motor_tx_0x200);
     }
     else if(5 <= hmotor->id && hmotor->id <= 8)
     {
         tx_id = 0x1FF;
         motor_tx_packet[(hmotor->id - 4)*2 - 1] = (uint8_t)current_map;       // 低八位
         motor_tx_packet[(hmotor->id - 4)*2 - 2] = (uint8_t)(current_map >> 8);// 高八位 
+        return CAN_SendMsg(hmotor->hcan, tx_id, motor_tx_0x1FF);
     }
     else
     {
         return HAL_ERROR;
     }
     
-    return CAN_SendMsg(hmotor->hcan, tx_id, motor_tx_packet);
+}
+
+/**
+ * @brief 拼接两个uint8_t成一个int16_t
+ * @param high 高8位字节
+ * @param low 低8位字节
+ */
+static inline int16_t can_to_int16(uint8_t high, uint8_t low)
+{
+    return (int16_t)(((uint16_t)high << 8) | low);
+}
+
+/**
+ * @brief 拼接两个uint8_t成一个uint16_t
+ * @param high 高8位字节
+ * @param low 低8位字节
+ */
+static inline uint16_t can_to_uint16(uint8_t high, uint8_t low)
+{
+    return (uint16_t)(((uint16_t)high << 8) | low);
 }
 
 /**
  * @brief 获取电机参数
  * @param hmotor 电机句柄
+ * @note 数据拼接说明: 
+ * @note CAN接收的报文是uint8_t类型, 在这里需要手动拼接到uint16_t类型, 不得使用int类型, 符号位会干扰, 
  */
 HAL_StatusTypeDef Motor_GetParam(Motor_HandleTypeDef *hmotor)
 { 
@@ -159,10 +184,10 @@ HAL_StatusTypeDef Motor_GetParam(Motor_HandleTypeDef *hmotor)
     }
 
     uint32_t rx_id;
-    uint8_t rx_packet[8] = {0};
-    int32_t raw_angle, raw_rpm, raw_curr;
+    int16_t raw_angle, raw_rpm, raw_curr;
     int8_t raw_temp;
-    HAL_StatusTypeDef state = CAN_ReceiveMsg(hmotor->hcan, CAN_RX_FIFO0, rx_packet, &rx_id);
+
+    HAL_StatusTypeDef state = CAN_ReceiveMsg(hmotor->hcan, CAN_RX_FIFO0, can_rx_packet, &rx_id);
     if(state != HAL_OK) return state;
 
     // 验证CAN ID有效性 (0x201-0x208)
@@ -175,17 +200,17 @@ HAL_StatusTypeDef Motor_GetParam(Motor_HandleTypeDef *hmotor)
 
     // 获取原始数据
     // 0角度H 1角度L 2转速H 3转速L 4转矩电流H 5转矩电流L 6温度 7NULL
-    raw_angle = (int32_t)(((uint16_t)rx_packet[0] << 8) | rx_packet[1]);
-    raw_rpm = (int32_t)(((uint16_t)rx_packet[2] << 8) | rx_packet[3]);
-    raw_curr = (int32_t)(((uint16_t)rx_packet[4] << 8) | rx_packet[5]);
-    raw_temp = (int8_t)rx_packet[6];
+    raw_angle = can_to_uint16(can_rx_packet[0], can_rx_packet[1]);
+    raw_rpm = can_to_int16(can_rx_packet[2], can_rx_packet[3]);
+    raw_curr = can_to_int16(can_rx_packet[4], can_rx_packet[5]);
+    raw_temp = (int8_t)can_rx_packet[6];
 
     // 转化为真实数据
     // angle: 0~8192 -> 0~360°
     // rpm: no map
     // current: -16384~16384 -> -20~20A
     // temperature: no map
-    hmotor->angle = raw_angle * 360.0f / 8191.0f;
+    hmotor->angle = raw_angle * 360.0f / 8192.0f;
     hmotor->rpm = raw_rpm;
     hmotor->real_current = raw_curr * 20.0f / 16384.0f;
     hmotor->temperature = raw_temp;
