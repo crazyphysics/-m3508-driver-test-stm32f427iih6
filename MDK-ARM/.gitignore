@@ -1,3 +1,6 @@
 *.uvoptx
 *.uvguix.*
-/.vscode
+.vscode/
+DebugConfig/
+F4_motor/
+RTE/

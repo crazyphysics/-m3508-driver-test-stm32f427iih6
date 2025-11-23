@@ -3,6 +3,12 @@ bin-debug/
 bin-release/
 [Oo]bj/
 [Bb]in/
+MDK-ARM/DebugConfig/
+MDK-ARM/ReleaseConfig/
+MDK-ARM/RTE/
+MDK-ARM/F4_motor/
+MDK-ARM/.vscode/
+MDK-ARM/*.uvguix.*
 
 # Other files and folders
 .settings/
@@ -12,6 +18,7 @@ bin-release/
 *.air
 *.ipa
 *.apk
+*.log
 
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
