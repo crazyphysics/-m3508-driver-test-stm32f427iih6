@@ -28,7 +28,7 @@
 2. 已在 STM32F103 平台完成前期开发和测试，当前正在向 STM32F427IIH6 移植。
 
 ## 引脚图
-![引脚图](https://gitee.com/liuyihui1/m3508-driver-test-stm32f427iih6/raw/master/%E5%BC%95%E8%84%9A%E5%9B%BE.png)
+![引脚图]([https://gitee.com/liuyihui1/m3508-driver-test-stm32f427iih6/raw/master/%E5%BC%95%E8%84%9A%E5%9B%BE.png](https://github.com/crazyphysics/-m3508-driver-test-stm32f427iih6/blob/master/%E5%BC%95%E8%84%9A%E5%9B%BE.png?raw=true))
 
 ## 参与贡献
 1. 请先联系项目作者（RoboPioneer 下位机小登）；
