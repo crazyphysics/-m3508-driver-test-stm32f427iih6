@@ -131,15 +131,15 @@ HAL_StatusTypeDef Motor_SetCurrentMap(Motor_HandleTypeDef *hmotor, int32_t curre
     if(1 <= hmotor->id && hmotor->id <= 4)
     {
         tx_id = 0x200;
-        motor_tx_packet[hmotor->id*2 - 1] = (uint8_t)current_map;       // 低八位
-        motor_tx_packet[hmotor->id*2 - 2] = (uint8_t)(current_map >> 8);// 高八位 
+        motor_tx_0x200[hmotor->id*2 - 1] = (uint8_t)current_map;       // 低八位
+        motor_tx_0x200[hmotor->id*2 - 2] = (uint8_t)(current_map >> 8);// 高八位 
         return CAN_SendMsg(hmotor->hcan, tx_id, motor_tx_0x200);
     }
     else if(5 <= hmotor->id && hmotor->id <= 8)
     {
         tx_id = 0x1FF;
-        motor_tx_packet[(hmotor->id - 4)*2 - 1] = (uint8_t)current_map;       // 低八位
-        motor_tx_packet[(hmotor->id - 4)*2 - 2] = (uint8_t)(current_map >> 8);// 高八位 
+        motor_tx_0x1FF[(hmotor->id - 4)*2 - 1] = (uint8_t)current_map;       // 低八位
+        motor_tx_0x1FF[(hmotor->id - 4)*2 - 2] = (uint8_t)(current_map >> 8);// 高八位 
         return CAN_SendMsg(hmotor->hcan, tx_id, motor_tx_0x1FF);
     }
     else
